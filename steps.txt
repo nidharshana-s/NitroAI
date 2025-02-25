@@ -1,0 +1,68 @@
+two direc - front and back
+
+back:
+npm init -y
+npm install express mongoose cors dotenv bcryptjs jsonwebtoken
+index.js content
+.env content
+
+front:
+npm create vite@latest .
+npm install
+(tailwind) refer https://tailwindcss.com/docs/installation/using-vite
+npm install tailwindcss @tailwindcss/vite
+In vite.config.js add, import tailwindcss from '@tailwindcss/vite'
+In plugins, tailwindcss()
+In index.css, @import "tailwindcss";
+
+filestructure setup
+
+testing - https://medium.com/@it.ermias.asmare/node-js-express-with-jest-and-supertest-e58aaf4c4514
+general CRUD - https://medium.com/@it.ermias.asmare/user-authentication-and-authorization-in-express-and-mongodb-using-jwt-643503a23452
+
+generate JWT secret - c0a7c90e93c87e3cfb8353a477c0f65b041046cc01c291f0aff9a9a628902be0
+
+
+get from git into another project
+git clone --no-checkout <path-to-project1> project2
+cd project2
+git checkout <boilerplate-commit-hash>
+rm -rf .git
+git init
+git add .
+git commit -m "Initial boilerplate setup"
+
+
+
+You can achieve this by checking out the "boilerplate" commit in a new directory without affecting your existing `project1` repository. Here’s how:
+
+### **Steps:**
+1. **Clone `project1` into a new directory (`project2`) without history:**
+   ```bash
+   git clone --no-checkout <path-to-project1> project2
+   cd project2
+   ```
+
+2. **Checkout the "boilerplate" commit files without affecting Git history:**
+   ```bash
+   git checkout <boilerplate-commit-hash>
+   ```
+
+   - Replace `<boilerplate-commit-hash>` with the actual commit hash of the "boilerplate" commit.
+   - This will extract only the files present in that commit.
+
+3. **Detach from Git history (if you don’t need Git tracking in `project2`):**
+   ```bash
+   rm -rf .git
+   ```
+
+   - This removes Git tracking, making `project2` an independent project template.
+
+4. **Initialize a new Git repository (if needed) for `project2`:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial boilerplate setup"
+   ```
+
+Now, you have `project2` set up using only the files from the `boilerplate` commit of `project1`, and `project1` remains untouched. 🚀
