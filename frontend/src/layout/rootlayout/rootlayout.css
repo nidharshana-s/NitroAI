@@ -8,19 +8,37 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-size:medium;
   
+      .sign-but{
+        background-color: aliceblue;
+        color: black;
+        padding: 10px;
+        border-radius: 10px;
+
+        &:hover{
+          background-color: black;
+          color: aliceblue;
+          
+        }
+      }
+
       .logo {
         display: flex;
         align-items: center;
         font-weight: bold;
         gap: 8px;
+        width: 65%;
+        height: 65%;
   
         img {
-          width: 32px;
-          height: 32px;
+          width: 16px;
+          height: 16px;
         }
       }
     }
+
+    
   
     main {
       flex: 1;

@@ -1,30 +1,38 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Homepage from "./Pages/homepage/Homepage";
-import Dashboard from "./Pages/dashboard/Dashboard";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import RootLayout from './layout/rootlayout/rootLayout';
+import HomePage from './Pages/homepage/HomePage';
+import SigninPage from './Pages/signinpage/SigninPage';
+import DashboardLayout from './layout/dashboardlayout/DashboardLayout';
+import Dashboard from './Pages/dashboard/Dashboard';
 import Chatpage from "./Pages/chatpage/Chatpage";
-import RootLayout from "./layout/rootlayout/rootLayout";
-import DashboardLayout from "./layout/dashboardlayout/DashboardLayout";
-import Signinpage from "./Pages/signinpage/Signinpage";
-import SignupPage from "./Pages/signuppage/signupPage";
-import { RedirectToSignIn } from "@clerk/clerk-react";
+import {SignedIn,SignedOut} from "@clerk/clerk-react";
+import { useAuth } from '@clerk/clerk-react';
+import { Navigate } from 'react-router-dom';
 
+const ProtectedRoute = ({ children }) => {
+    const { isSignedIn } = useAuth();
+
+    if (isSignedIn) {
+        return <Navigate to="/dashboard" />;
+    }
+
+    return children;
+};
 
 function App() {
     return (
-        <Router>
+        <BrowserRouter>
             <Routes>
                 <Route path="/" element={<RootLayout />}>
-                {/* add outlet in rootlayout for nested */}
-                  <Route index element={<Homepage />} />
-                  <Route path="/dashboard" element={<DashboardLayout/>} >
-                    <Route index element={<Dashboard />} />
-                    <Route path="/dashboard/chats/:id" element={<Chatpage />} />
-                  </Route>
-                  <Route path="/signin" element={<Signinpage />} />
-                  <Route path="/signup" element={<SignupPage />} />
+                    <Route index element={<HomePage />} />
+                    <Route path="signin" element={<ProtectedRoute><SigninPage /></ProtectedRoute>} />
+                    <Route path="dashboard" element={<DashboardLayout />}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="chats/:id" element={<SignedIn><Chatpage /></SignedIn>} />
+                    </Route>
                 </Route>
             </Routes>
-        </Router>
+        </BrowserRouter>
     );
 }
 

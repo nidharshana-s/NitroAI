@@ -1,0 +1,125 @@
+.homepage{
+    display:flex;
+    align-items: center;
+    gap:100px;
+    height:100%;
+
+    @media screen and (max-width: 1024px) {
+        flex-direction: column;
+        gap: 0px;
+    }
+}
+
+.left{
+    flex:1;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap:16px;
+    text-align: center;
+
+    .get-start{
+        background-color: #217bfe;
+        color: aliceblue;
+        font-size: 18px;
+        border-radius: 20px;
+        margin-top: 15px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #217bfe;
+        text-decoration: none;
+    
+        &:hover{
+            background-color: transparent;
+            color: #217bfe;
+        }
+    }
+}
+
+.right{
+    flex:1;
+    display:flex;
+}
+
+h1{
+    font-size: 64px;
+    background: linear-gradient(to right, #217bfe, #e55571);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    @media screen and (max-width: 1280px) {
+        font-size: 64px;
+    }
+}
+
+
+.orb{
+    opacity: 0.02;
+    left: 0;
+    bottom: 0;
+    position: absolute;
+    z-index: -1;
+
+}
+
+
+
+.imgContainer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #11161d;
+    margin: 2px;
+    padding-left: 35px;
+    padding-right: 35px;
+    height:90%;
+    width:90%;
+    border-radius: 25px;
+}
+
+.bot{
+    height:100%;
+    width:100%;
+    opacity: 100%;
+    object-fit: contain;
+    animation: 3s ease-in-out infinite alternate botAnimate;
+}
+h3{
+    font-weight: 400;
+    max-width: 85%;
+    @media screen and (max-width: 1024px) {
+        max-width: 100%;
+    }
+}
+
+@keyframes botAnimate {
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    100% {
+      transform: scale(1.1) rotate(-5deg);
+    }
+  }
+
+.logo{
+    height: 30px;
+    width: auto;
+}
+
+.foot{
+    height: 5px;
+    width: 5px;
+    bottom: 0;
+    left: 0;
+    width:100%;
+    display:flex;
+    padding: 20px;
+    position: fixed;
+    justify-items: center;
+    align-items: center;
+    justify-content: center;
+    
+}
+

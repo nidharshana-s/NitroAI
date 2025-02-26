@@ -1,4 +1,4 @@
-import './rootLayout.css';
+import './rootlayout.css';
 import { Link, Outlet } from 'react-router-dom';
 import logo from "../../public/logo.png";
 import { ClerkProvider } from '@clerk/clerk-react'
@@ -17,10 +17,10 @@ const RootLayout = () => {
                 <header>
                     <Link to="/">
                         <img src={logo} alt="" className='logo' />
-                        <span>ChitChat AI</span>
+                        <span className='logo-bot'>    NITRO AI</span>
                     </Link>
                     <SignedOut>
-                        <SignInButton />
+                        <SignInButton className='sign-but'/>
                     </SignedOut>
                     <SignedIn>
                         <UserButton />
