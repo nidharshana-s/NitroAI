@@ -1,9 +1,52 @@
 import './Chatpage.css';
+import NewPrompt from '../../components/newprompt/NewPrompt';
+
 
 const Chatpage = () => {
     return (
         <div className="chatpage">
-        <h1>Chatpage</h1>
+            <div className="wrapper">
+                <div className="chat">
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message frogryheiguheroiugheir
+                        ugbniuerfgeirgheiufgvbeirughe
+                        tgiubefigubfingieum User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <div className="message">message from AI</div>
+                    <div className='message user'>message from User</div>
+                    <NewPrompt />
+
+                </div>
+            </div>
         </div>
     );
 }
