@@ -16,8 +16,11 @@ const RootLayout = () => {
             <div className='rootLayout'>
                 <header>
                     <Link to="/">
+                    <div className="logo-con">
                         <img src={logo} alt="" className='logo' />
-                        <span className='logo-bot'>    NITRO AI</span>
+                        <span className='logo-bot'>NITRO AI</span>
+                    </div>
+                        
                     </Link>
                     <SignedOut>
                         <SignInButton className='sign-but'/>

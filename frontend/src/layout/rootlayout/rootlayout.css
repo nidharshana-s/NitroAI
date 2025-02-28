@@ -1,5 +1,5 @@
 .rootLayout {
-    padding: 16px 64px;
+    padding: 12px 64px;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -9,6 +9,7 @@
       align-items: center;
       justify-content: space-between;
       font-size:medium;
+      padding-bottom: 10px;
   
       .sign-but{
         background-color: aliceblue;
@@ -22,6 +23,15 @@
           
         }
       }
+      .logo-con{
+        display: flex;        
+      }
+
+      .logo-bot{
+        align-content: center;
+      }
+
+      
 
       .logo {
         display: flex;

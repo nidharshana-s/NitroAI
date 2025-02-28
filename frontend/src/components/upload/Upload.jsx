@@ -40,12 +40,34 @@ const Upload = ({setImg}) => {
         console.log("Progress", progress);
       };
       
-      const onUploadStart = evt => {
-        console.log("Start", evt);
-        setImg((prev) => ({
-            ...prev, isLoading:true
-        }))
+    //   const onUploadStart = evt => {
+    //     // console.log("Start", evt);
+    //     const file = evt.target.files[0]
+
+    //     setImg((prev) => ({
+    //         ...prev, isLoading:true
+    //     }))
+    //   };
+
+    const onUploadStart = (evt) => {
+        const file = evt.target.files[0];
+    
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImg((prev) => ({
+            ...prev,
+            isLoading: true,
+            aidata: {
+              inlineData: {
+                data: reader.result.split(",")[1],
+                mimeType: file.type,
+              },
+            },
+          }));
+        };
+        reader.readAsDataURL(file);
       };
+
 
     return (
         <div className="upload">
