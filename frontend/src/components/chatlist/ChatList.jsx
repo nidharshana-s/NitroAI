@@ -1,9 +1,24 @@
 import { Link } from 'react-router-dom'
 import './chatlist.css'
 import logo from "../../public/logo.png";
+import {
+    useQuery,
+  } from '@tanstack/react-query'
+
 
 
 const ChatList = () =>{
+
+    const {isPending, error, data} = useQuery({
+        queryKey: ['userChats'],
+        queryFn: async() => {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/userchats`,{
+                credentials:"include"
+            })
+            return res.json()
+        }
+    })
+
     return (
         <div className='chatlist'>
             <span className='title'>DASHBOARD</span>
@@ -13,12 +28,15 @@ const ChatList = () =>{
                 <hr/>
                 <span className='title'>RECENT CHATS</span>
                 <div className="list">
-                    <Link to="/">chat list</Link>
-                    <Link to="/">chat list</Link>
-                    <Link to="/">chat list</Link>
-                    <Link to="/">chat list</Link>
-                    <Link to="/">chat list</Link>
-                    <Link to="/">chat list</Link>
+                    {isPending 
+                    ? "isLoading" 
+                    : error 
+                    ? console.log(error.message) 
+                    : data?.map((chat) => (
+                        <Link to={`/dashboard/chats/${chat._id}`} key={chat._id}>
+                            {chat.title}
+                        </Link>
+                    ))}
                 </div>
                 <hr/>
                 <div className="upgrade">

@@ -4,10 +4,56 @@ import chat from "../../public/chat.png";
 import image from "../../public/image.png";
 import code from "../../public/code.png";
 import arrow from "../../public/arrow.png";
+import {useAuth} from "@clerk/clerk-react"
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 
 
-const Dashboard = () => {    
+const Dashboard = () => {   
+  
+  //const {userId} = useAuth();
+
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: (text) => {
+      return fetch(`${import.meta.env.VITE_API_URL}/api/chats`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      }).then((res) => res.json())
+      
+    },
+    onSuccess: (id) => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["userChats"] });
+      navigate(`/dashboard/chats/${id}`);
+    },
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const text = e.target.text.value;
+    if (!text) return;
+
+    // await fetch("http://localhost:3000/api/chats", {
+    //   method: "POST",
+    //   credentials:true,
+    //   headers : {
+    //     "Content-Type" : "application/json",
+    //   },
+    //   body : JSON.stringify({text})
+    // })
+    mutation.mutate(text);
+  };
+  
+  
     return (
       <div className="dashboardPage">
       <div className="texts">
@@ -31,7 +77,7 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="formContainer">
-        <form >
+        <form onSubmit={handleSubmit}>
           <input type="text" name="text" placeholder="Ask me anything..." />
           <button>
             <img src={arrow} alt="" />
