@@ -8,8 +8,6 @@ import {useAuth} from "@clerk/clerk-react"
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-
-
 const Dashboard = () => {   
   
   //const {userId} = useAuth();

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import Markdown from 'react-markdown';
 import { IKImage } from 'imagekitio-react';
 import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, Fragment } from 'react';
 
 
 const Chatpage = () => {
@@ -37,7 +37,7 @@ const Chatpage = () => {
                     : error 
                     ? console.log(error)
                     : data?.history?.map((message, i) => (
-                            <>
+                            <Fragment key={i}>
                                 {message.img && (
                                     <IKImage
                                         urlEndpoint={import.meta.env.VITE_IMAGEIO_BASE_URL}
@@ -50,10 +50,10 @@ const Chatpage = () => {
 
                                     />
                                 )}
-                                <div className={message.role === "user" ? "message user" : "message"} key={i}>
+                                <div className={message.role === "user" ? "message user" : "message"}>
                                     <Markdown>{message.parts[0].text}</Markdown>
                                 </div>
-                            </>
+                            </Fragment>
                         ))}
                     
                     {/* <NewPrompt /> */}

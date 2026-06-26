@@ -12,7 +12,7 @@ const PORT = process.env.PORT;
 connectDB();
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 //cors
 app.use(cors({

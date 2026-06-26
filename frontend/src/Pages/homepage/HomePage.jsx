@@ -17,7 +17,7 @@ const Homepage = () => {
       <div className='left'>
         <h1>NITRO AI</h1>
         <h2>Chat with me</h2>
-        <h3>this is chitchat. chit and chat.urhfuiwfbiweuf7bhiorugfbiorugfbloifurwnof9uebfiuegfiurebgiuengi</h3>
+        {/* <h3>this is chitchat. chit and chat.urhfuiwfbiweuf7bhiorugfbiorugfbloifurwnof9uebfiuegfiurebgiuengi</h3> */}
         <Link to="/dashboard" className='get-start'>GET STARTED</Link>
         <button onClick={test}>test</button>
       </div>

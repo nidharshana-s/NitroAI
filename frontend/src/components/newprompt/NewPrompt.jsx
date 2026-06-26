@@ -3,15 +3,27 @@ import arrow from '../../public/arrow.png';
 import React, { useEffect, useRef, useState } from 'react';
 import Upload from '../upload/Upload';
 import { IKImage } from 'imagekitio-react';
-import model from '../../lib/gemini';
+import { createInteractionStream } from '../../lib/gemini';
 const urlEndpoint = import.meta.env.VITE_IMAGEIO_BASE_URL;
 import Markdown from 'react-markdown';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+const MODEL = 'gemini-3.5-flash';
+
+function historyToSteps(history) {
+  return history.flatMap(({ role, parts }) => {
+    const content = [{ type: 'text', text: parts[0]?.text || '' }];
+    if (role === 'user') return [{ type: 'user_input', content }];
+    if (role === 'model') return [{ type: 'model_output', content }];
+    return [];
+  });
+}
 
 const NewPrompt = React.memo(({ data }) => {
   const endref = useRef(null);
   const [question, setQuestion] = useState();
   const [answer, setAnswer] = useState();
+  const [error, setError] = useState('');
   const [img, setImg] = useState({
     isLoading: false,
     error: '',
@@ -19,20 +31,16 @@ const NewPrompt = React.memo(({ data }) => {
     aidata: {},
   });
 
-  const chat = model.startChat({
-    history: data?.history
-      ? data.history.map(({ role, parts }) => ({
-          role,
-          parts: [{ text: parts[0]?.text || '' }],
-        }))
-      : [],
-    generationConfig: {
-      // maxOutputTokens: 100,
-    },
-  });
-
-  const endRef = useRef(null);
+  const conversationHistoryRef = useRef(
+    data?.history ? historyToSteps(data.history) : []
+  );
   const formRef = useRef(null);
+
+  useEffect(() => {
+    conversationHistoryRef.current = data?.history
+      ? historyToSteps(data.history)
+      : [];
+  }, [data?.history]);
 
   useEffect(() => {
     endref.current.scrollIntoView({ behavior: 'smooth' });
@@ -74,24 +82,63 @@ const NewPrompt = React.memo(({ data }) => {
   });
 
   const add = async (text, isInitial) => {
-    console.log('add function called with:', text);
     if (!isInitial) setQuestion(text);
+    setError('');
 
     try {
-      const result = await chat.sendMessageStream(
-        Object.entries(img.aidata).length ? [img.aidata, text] : [text]
-      );
+      const content = Object.entries(img.aidata).length
+        ? [
+            {
+              type: 'image',
+              mime_type: img.aidata.inlineData.mimeType,
+              data: img.aidata.inlineData.data,
+            },
+            { type: 'text', text },
+          ]
+        : [{ type: 'text', text }];
+
+      const userStep = { type: 'user_input', content };
+      const input = isInitial && conversationHistoryRef.current.length
+        ? conversationHistoryRef.current
+        : [...conversationHistoryRef.current, userStep];
+
+      const stream = createInteractionStream({
+        model: MODEL,
+        store: false,
+        input,
+      });
+
       let accumulatedText = '';
-      for await (const chunk of result.stream) {
-        const chunkText = chunk.text();
-        //console.log(chunkText);
-        accumulatedText += chunkText;
-        setAnswer(accumulatedText);
+      for await (const event of stream) {
+        if (
+          event.event_type === 'step.delta' &&
+          event.delta?.type === 'text' &&
+          event.delta.text
+        ) {
+          accumulatedText += event.delta.text;
+          setAnswer(accumulatedText);
+        }
+      }
+
+      if (!accumulatedText) {
+        throw new Error('No response received from the model.');
+      }
+
+      if (isInitial) {
+        conversationHistoryRef.current.push({
+          type: 'model_output',
+          content: [{ type: 'text', text: accumulatedText }],
+        });
+      } else {
+        conversationHistoryRef.current.push(userStep, {
+          type: 'model_output',
+          content: [{ type: 'text', text: accumulatedText }],
+        });
       }
 
       mutation.mutate();
     } catch (err) {
-      console.log(err);
+      setError(err.message || 'Failed to get a response. Please try again.');
     }
   };
 
@@ -130,6 +177,7 @@ const NewPrompt = React.memo(({ data }) => {
           <Markdown>{answer}</Markdown>
         </div>
       )}
+      {error && <div className="message">{error}</div>}
 
       <div className="endChat" ref={endref}></div>
       <form className="newForm" onSubmit={handleSubmit}>

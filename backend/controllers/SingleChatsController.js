@@ -6,7 +6,7 @@ const SingleChats = async(req, res) => {
     try {
         //console.log(await Chats.findById(new ObjectId(req.params.id)))
         const chat = await Chats.findOne({_id:req.params.id, userId})
-        console.log(req.params.id)
+        //console.log(req.params.id)
         res.status(200).json(chat)
     } catch (error) {
         console.log(error);
