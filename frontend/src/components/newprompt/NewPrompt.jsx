@@ -2,13 +2,12 @@ import './newprompt.css';
 import arrow from '../../public/arrow.png';
 import React, { useEffect, useRef, useState } from 'react';
 import Upload from '../upload/Upload';
-import { IKImage } from 'imagekitio-react';
 import { createChatStream } from '../../lib/groq';
-const urlEndpoint = import.meta.env.VITE_IMAGEIO_BASE_URL;
-import Markdown from 'react-markdown';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const MODEL = 'llama-3.3-70b-versatile';
+
+const initialResponseStarted = new Set();
 
 function historyToMessages(history) {
   return history.map(({ role, parts }) => ({
@@ -17,10 +16,9 @@ function historyToMessages(history) {
   }));
 }
 
-const NewPrompt = React.memo(({ data }) => {
-  const endref = useRef(null);
-  const [question, setQuestion] = useState();
-  const [answer, setAnswer] = useState();
+const NewPrompt = React.memo(({ data, onPendingChange }) => {
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
   const [error, setError] = useState('');
   const [img, setImg] = useState({
     isLoading: false,
@@ -41,8 +39,8 @@ const NewPrompt = React.memo(({ data }) => {
   }, [data?.history]);
 
   useEffect(() => {
-    endref.current.scrollIntoView({ behavior: 'smooth' });
-  }, [data, question, answer, img.dbdata]);
+    onPendingChange?.({ question, answer, error, img });
+  }, [question, answer, error, img, onPendingChange]);
 
   const queryClient = useQueryClient();
 
@@ -62,16 +60,16 @@ const NewPrompt = React.memo(({ data }) => {
       }).then((res) => res.json());
     },
     onSuccess: () => {
+      setQuestion('');
+      setAnswer('');
+      setImg({
+        isLoading: false,
+        error: '',
+        dbdata: {},
+        aidata: {},
+      });
       queryClient.invalidateQueries({ queryKey: ['chat', data._id] }).then(() => {
-        formRef.current.reset();
-        setQuestion('');
-        setAnswer('');
-        setImg({
-          isLoading: false,
-          error: '',
-          dbdata: {},
-          aidata: {},
-        });
+        formRef.current?.reset();
       });
     },
     onError: (err) => {
@@ -122,38 +120,18 @@ const NewPrompt = React.memo(({ data }) => {
     add(userInput, false);
   };
 
-  const hasRun = useRef(false);
-
   useEffect(() => {
-    if (!hasRun.current) {
-      if (data?.history?.length === 1) {
-        add(data.history[0].parts[0].text, true);
-      }
-    }
-    hasRun.current = true;
-  }, []);
+    if (!data?._id) return;
+    if (data.history?.length !== 1) return;
+    if (data.history.some((m) => m.role === 'model')) return;
+    if (initialResponseStarted.has(data._id)) return;
+
+    initialResponseStarted.add(data._id);
+    add(data.history[0].parts[0].text, true);
+  }, [data]);
 
   return (
-    <>
-      {img.isLoading && <div> is Loading.......</div>}
-      {img.dbdata?.filePath && (
-        <IKImage
-          urlEndpoint={urlEndpoint}
-          path={img.dbdata?.filePath}
-          width="200"
-        />
-      )}
-
-      {!data?.history?.some(msg => msg.parts[0].text === question) && question && <div className="message user">{question}</div>}
-      {!data?.history?.some(msg => msg.parts[0].text === answer) && answer && (
-        <div className="message">
-          <Markdown>{answer}</Markdown>
-        </div>
-      )}
-      {error && <div className="message">{error}</div>}
-
-      <div className="endChat" ref={endref}></div>
-      <form className="newForm" onSubmit={handleSubmit}>
+    <form className="newForm" onSubmit={handleSubmit}>
         <Upload setImg={setImg} />
 
         <input id="file" type="file" multiple={false} hidden />
@@ -161,8 +139,7 @@ const NewPrompt = React.memo(({ data }) => {
         <button>
           <img src={arrow} />
         </button>
-      </form>
-    </>
+    </form>
   );
 });
 

@@ -4,12 +4,24 @@ import { useQuery } from '@tanstack/react-query';
 import Markdown from 'react-markdown';
 import { IKImage } from 'imagekitio-react';
 import { useLocation } from 'react-router-dom';
-import { useEffect, Fragment } from 'react';
+import { useEffect, useRef, useState, Fragment, useCallback } from 'react';
 
+const urlEndpoint = import.meta.env.VITE_IMAGEIO_BASE_URL;
 
 const Chatpage = () => {
     const path = useLocation().pathname;
     const chatId = path.split("/").pop();
+    const endRef = useRef(null);
+    const [pending, setPending] = useState({
+        question: '',
+        answer: '',
+        error: '',
+        img: { isLoading: false, error: '', dbdata: {}, aidata: {} },
+    });
+
+    const onPendingChange = useCallback((next) => {
+        setPending(next);
+    }, []);
 
     const { isPending, error, data } = useQuery({
     queryKey: ["chat", chatId],
@@ -19,28 +31,26 @@ const Chatpage = () => {
       }).then((res) => res.json()),
     });
 
-    console.log(data);
-    // useEffect(() => {
-    //     if(data){
+    useEffect(() => {
+        endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [data, pending]);
 
-    //         console.log(data)
-    //     }
-        
-    // }, [data]);
+    const historyHasText = (text) =>
+        data?.history?.some((msg) => msg.parts[0]?.text === text);
 
     return (
         <div className="chatpage">
             <div className="wrapper">
                 <div className="chat">
-                    {isPending 
-                    ? "isLoadingggg" 
-                    : error 
+                    {isPending
+                    ? "isLoadingggg"
+                    : error
                     ? console.log(error)
                     : data?.history?.map((message, i) => (
                             <Fragment key={i}>
                                 {message.img && (
                                     <IKImage
-                                        urlEndpoint={import.meta.env.VITE_IMAGEIO_BASE_URL}
+                                        urlEndpoint={urlEndpoint}
                                         path={message.img}
                                         height='300'
                                         width='400'
@@ -55,9 +65,27 @@ const Chatpage = () => {
                                 </div>
                             </Fragment>
                         ))}
-                    
-                    {/* <NewPrompt /> */}
-                    {data && <NewPrompt data={data}/>}
+
+                    {pending.img?.isLoading && <div> is Loading.......</div>}
+                    {pending.img?.dbdata?.filePath && (
+                        <IKImage
+                            urlEndpoint={urlEndpoint}
+                            path={pending.img.dbdata.filePath}
+                            width="200"
+                        />
+                    )}
+                    {pending.question && !historyHasText(pending.question) && (
+                        <div className="message user">{pending.question}</div>
+                    )}
+                    {pending.answer && !historyHasText(pending.answer) && (
+                        <div className="message">
+                            <Markdown>{pending.answer}</Markdown>
+                        </div>
+                    )}
+                    {pending.error && <div className="message">{pending.error}</div>}
+
+                    <div className="endChat" ref={endRef}></div>
+                    {data && <NewPrompt data={data} onPendingChange={onPendingChange} />}
 
                 </div>
             </div>
