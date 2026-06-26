@@ -6,7 +6,7 @@ const router = express.Router();
 const {requireAuth} = require('@clerk/express');
 const UserChats = require('../controllers/UserChatsController');
 const {SingleChats, UpdateChats} = require('../controllers/SingleChatsController');
-const { streamGemini } = require('../controllers/geminiController');
+const { streamGroq } = require('../controllers/groqController');
 
 
 
@@ -35,7 +35,7 @@ router.get('/test', requireAuth(), (req, res) => {
 router.get('/userchats', requireAuth(), UserChats)
 router.get('/chats/:id', requireAuth(), SingleChats)
 router.put('/chats/:id', requireAuth(), UpdateChats)
-router.post('/gemini/stream', requireAuth(), streamGemini)
+router.post('/groq/stream', requireAuth(), streamGroq)
 
 
 

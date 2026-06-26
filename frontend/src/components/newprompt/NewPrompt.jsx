@@ -3,20 +3,18 @@ import arrow from '../../public/arrow.png';
 import React, { useEffect, useRef, useState } from 'react';
 import Upload from '../upload/Upload';
 import { IKImage } from 'imagekitio-react';
-import { createInteractionStream } from '../../lib/gemini';
+import { createChatStream } from '../../lib/groq';
 const urlEndpoint = import.meta.env.VITE_IMAGEIO_BASE_URL;
 import Markdown from 'react-markdown';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-const MODEL = 'gemini-3.5-flash';
+const MODEL = 'llama-3.3-70b-versatile';
 
-function historyToSteps(history) {
-  return history.flatMap(({ role, parts }) => {
-    const content = [{ type: 'text', text: parts[0]?.text || '' }];
-    if (role === 'user') return [{ type: 'user_input', content }];
-    if (role === 'model') return [{ type: 'model_output', content }];
-    return [];
-  });
+function historyToMessages(history) {
+  return history.map(({ role, parts }) => ({
+    role: role === 'model' ? 'assistant' : 'user',
+    content: parts[0]?.text || '',
+  }));
 }
 
 const NewPrompt = React.memo(({ data }) => {
@@ -32,13 +30,13 @@ const NewPrompt = React.memo(({ data }) => {
   });
 
   const conversationHistoryRef = useRef(
-    data?.history ? historyToSteps(data.history) : []
+    data?.history ? historyToMessages(data.history) : []
   );
   const formRef = useRef(null);
 
   useEffect(() => {
     conversationHistoryRef.current = data?.history
-      ? historyToSteps(data.history)
+      ? historyToMessages(data.history)
       : [];
   }, [data?.history]);
 
@@ -86,54 +84,29 @@ const NewPrompt = React.memo(({ data }) => {
     setError('');
 
     try {
-      const content = Object.entries(img.aidata).length
-        ? [
-            {
-              type: 'image',
-              mime_type: img.aidata.inlineData.mimeType,
-              data: img.aidata.inlineData.data,
-            },
-            { type: 'text', text },
-          ]
-        : [{ type: 'text', text }];
-
-      const userStep = { type: 'user_input', content };
-      const input = isInitial && conversationHistoryRef.current.length
+      const userMessage = { role: 'user', content: text };
+      const messages = isInitial && conversationHistoryRef.current.length
         ? conversationHistoryRef.current
-        : [...conversationHistoryRef.current, userStep];
+        : [...conversationHistoryRef.current, userMessage];
 
-      const stream = createInteractionStream({
-        model: MODEL,
-        store: false,
-        input,
-      });
+      const stream = createChatStream({ model: MODEL, messages });
 
       let accumulatedText = '';
-      for await (const event of stream) {
-        if (
-          event.event_type === 'step.delta' &&
-          event.delta?.type === 'text' &&
-          event.delta.text
-        ) {
-          accumulatedText += event.delta.text;
-          setAnswer(accumulatedText);
-        }
+      for await (const chunk of stream) {
+        accumulatedText += chunk;
+        setAnswer(accumulatedText);
       }
 
       if (!accumulatedText) {
         throw new Error('No response received from the model.');
       }
 
+      const assistantMessage = { role: 'assistant', content: accumulatedText };
+
       if (isInitial) {
-        conversationHistoryRef.current.push({
-          type: 'model_output',
-          content: [{ type: 'text', text: accumulatedText }],
-        });
+        conversationHistoryRef.current.push(assistantMessage);
       } else {
-        conversationHistoryRef.current.push(userStep, {
-          type: 'model_output',
-          content: [{ type: 'text', text: accumulatedText }],
-        });
+        conversationHistoryRef.current.push(userMessage, assistantMessage);
       }
 
       mutation.mutate();
