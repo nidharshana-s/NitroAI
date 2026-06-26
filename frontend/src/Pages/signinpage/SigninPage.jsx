@@ -1,11 +1,10 @@
 import { SignIn, SignedOut } from '@clerk/clerk-react';
-import './Signinpage.css';
 
 const Signinpage = () => {
     return (
-        <div className="signinpage">
+        <div className="flex h-full items-center justify-center">
             <SignedOut>
-                <SignIn path='/signin' routing="path" signUpUrl='/signup' forceRedirectUrl='/dashboard' className='sign-but'/>
+                <SignIn path='/signin' routing="path" signUpUrl='/signup' forceRedirectUrl='/dashboard' />
             </SignedOut>
         </div>
     );

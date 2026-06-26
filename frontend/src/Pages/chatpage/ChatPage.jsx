@@ -1,4 +1,3 @@
-import './Chatpage.css';
 import NewPrompt from '../../components/newprompt/NewPrompt';
 import { useQuery } from '@tanstack/react-query';
 import Markdown from 'react-markdown';
@@ -39,11 +38,11 @@ const Chatpage = () => {
         data?.history?.some((msg) => msg.parts[0]?.text === text);
 
     return (
-        <div className="chatpage">
-            <div className="wrapper">
-                <div className="chat">
+        <div className="relative flex h-full flex-col items-center">
+            <div className="scrollbar-hide flex w-full flex-1 justify-center overflow-scroll">
+                <div className="flex w-[70%] flex-col gap-5 max-lg:w-full max-lg:px-4 [&_li]:my-3 [&_p]:my-3">
                     {isPending
-                    ? "isLoadingggg"
+                    ? <span className="text-text-muted">Loading...</span>
                     : error
                     ? console.log(error)
                     : data?.history?.map((message, i) => (
@@ -57,16 +56,19 @@ const Chatpage = () => {
                                         transformation={[{height:300, width:400}]}
                                         loading="lazy"
                                         lqip={{active:true, quality: 20}}
-
                                     />
                                 )}
-                                <div className={message.role === "user" ? "message user" : "message"}>
+                                <div className={
+                                    message.role === "user"
+                                        ? "max-w-[85%] self-end rounded-2xl bg-brand p-3.5 text-white"
+                                        : "p-3.5"
+                                }>
                                     <Markdown>{message.parts[0].text}</Markdown>
                                 </div>
                             </Fragment>
                         ))}
 
-                    {pending.img?.isLoading && <div> is Loading.......</div>}
+                    {pending.img?.isLoading && <div className="text-text-muted">Loading image...</div>}
                     {pending.img?.dbdata?.filePath && (
                         <IKImage
                             urlEndpoint={urlEndpoint}
@@ -75,18 +77,17 @@ const Chatpage = () => {
                         />
                     )}
                     {pending.question && !historyHasText(pending.question) && (
-                        <div className="message user">{pending.question}</div>
+                        <div className="max-w-[85%] self-end rounded-2xl bg-brand p-3.5 text-white">{pending.question}</div>
                     )}
                     {pending.answer && !historyHasText(pending.answer) && (
-                        <div className="message">
+                        <div className="p-3.5">
                             <Markdown>{pending.answer}</Markdown>
                         </div>
                     )}
-                    {pending.error && <div className="message">{pending.error}</div>}
+                    {pending.error && <div className="p-3.5 text-urgency">{pending.error}</div>}
 
-                    <div className="endChat" ref={endRef}></div>
+                    <div className="pb-[100px]" ref={endRef}></div>
                     {data && <NewPrompt data={data} onPendingChange={onPendingChange} />}
-
                 </div>
             </div>
         </div>

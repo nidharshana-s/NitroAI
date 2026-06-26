@@ -1,10 +1,9 @@
-import { IKContext, IKImage, IKUpload } from 'imagekitio-react';
+import { IKContext, IKUpload } from 'imagekitio-react';
 import attach from "../../public/attachment.png";
 import { useRef } from 'react';
 
-
 const urlEndpoint = import.meta.env.VITE_IMAGEIO_BASE_URL;
-const publicKey = import.meta.env.VITE_IMAGEIO_PUBLIC_KEY; 
+const publicKey = import.meta.env.VITE_IMAGEIO_PUBLIC_KEY;
 const authenticator =  async () => {
     try {
         const response = await fetch('http://localhost:3000/api/upload');
@@ -23,35 +22,25 @@ const authenticator =  async () => {
 };
 
 const Upload = ({setImg}) => {
-
     const ikUploadRef = useRef(null)
     const onError = err => {
         console.log("Error", err);
       };
-      
+
       const onSuccess = res => {
         console.log("Success", res);
         setImg((prev) => ({
             ...prev, isLoading:false, dbdata:res
         }))
       };
-      
+
       const onUploadProgress = progress => {
         console.log("Progress", progress);
       };
-      
-    //   const onUploadStart = evt => {
-    //     // console.log("Start", evt);
-    //     const file = evt.target.files[0]
-
-    //     setImg((prev) => ({
-    //         ...prev, isLoading:true
-    //     }))
-    //   };
 
     const onUploadStart = (evt) => {
         const file = evt.target.files[0];
-    
+
         const reader = new FileReader();
         reader.onloadend = () => {
           setImg((prev) => ({
@@ -68,15 +57,12 @@ const Upload = ({setImg}) => {
         reader.readAsDataURL(file);
       };
 
-
     return (
-        <div className="upload">
-            <IKContext
-                publicKey={publicKey} 
-                urlEndpoint={urlEndpoint} 
-                authenticator={authenticator} 
-                
-            >
+        <IKContext
+            publicKey={publicKey}
+            urlEndpoint={urlEndpoint}
+            authenticator={authenticator}
+        >
             <IKUpload
                 fileName="test-upload.png"
                 useUniqueFileName={true}
@@ -84,17 +70,13 @@ const Upload = ({setImg}) => {
                 onSuccess={onSuccess}
                 onUploadProgress={onUploadProgress}
                 onUploadStart={onUploadStart}
-                style={{
-                    display:"none"
-                }}
+                style={{ display: "none" }}
                 ref={ikUploadRef}
             />
-            <label onClick={() => ikUploadRef.current.click()}>
-                <img src={attach} alt="" />
+            <label onClick={() => ikUploadRef.current.click()} className="icon-btn cursor-pointer">
+                <img src={attach} alt="Attach file" />
             </label>
-
-      </IKContext>
-        </div>
+        </IKContext>
     )
 }
 

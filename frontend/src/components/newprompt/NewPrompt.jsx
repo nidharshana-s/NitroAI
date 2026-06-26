@@ -1,4 +1,3 @@
-import './newprompt.css';
 import arrow from '../../public/arrow.png';
 import React, { useEffect, useRef, useState } from 'react';
 import Upload from '../upload/Upload';
@@ -131,13 +130,17 @@ const NewPrompt = React.memo(({ data, onPendingChange }) => {
   }, [data]);
 
   return (
-    <form className="newForm" onSubmit={handleSubmit}>
+    <form
+      ref={formRef}
+      className="absolute bottom-0 flex w-[70%] items-center gap-5 rounded-2xl border border-stone/20 bg-bg-surface px-5 max-lg:w-full"
+      onSubmit={handleSubmit}
+    >
         <Upload setImg={setImg} />
 
         <input id="file" type="file" multiple={false} hidden />
-        <input type="text" placeholder="Ask Anything" name="input" />
-        <button>
-          <img src={arrow} />
+        <input type="text" placeholder="Ask Anything" name="input" className="prompt-input" />
+        <button type="submit" className="icon-btn">
+          <img src={arrow} alt="Send" />
         </button>
     </form>
   );
